@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id        Int     @id @default(autoincrement())
+  title     String
+  content   String? @map("post_content")
+  published Boolean @default(false)
+  author    User?   @relation(fields: [authorId], references: [id])
+  authorId  Int?
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  name     String
+  email    String    @unique
+  password String    @db.VarChar(100)
+  Product  Product[]
+  createAt DateTime  @default(now())
+  updateAt DateTime  @default(now())
+  Post     Post[]
+}
+
+model Catalog {
+  id                 Int       @id @default(autoincrement())
+  name               String?
+  titles             String?
+  slugs              String? // slug
+  category_commision String?
+  category_block     Boolean?
+  price              Int?
+  image              String?
+  parentId           Int?
+  publish            Boolean?
+  Status             Boolean? ///fasdfa
+  catalog            Catalog?  @relation("CatalogToCatalog", fields: [parentId], references: [id])
+  Catalog            Catalog[] @relation("CatalogToCatalog")
+  Product            Product[]
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  price       String
+  image       String
+  userId      Int?
+  users       User?    @relation(fields: [userId], references: [id])
+  cataloguId  Int?
+  catalogues  Catalog? @relation(fields: [cataloguId], references: [id])
+  Ratings     Rating[]
+  createAt    DateTime @default(now())
+  updateAt    DateTime @default(now())
+}
+
+model Rating {
+  id        Int       @id @default(autoincrement())
+  rating    Int?
+  views     Int?
+  productId String?
+  Product   Product?  @relation(fields: [productId], references: [id])
+  createAt  DateTime? @default(now())
+  updateAt  DateTime? @default(now())
+}
